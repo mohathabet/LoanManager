@@ -1,5 +1,4 @@
 import React from "react";
-// mui imports
 import {
   ListItemIcon,
   ListItem,
@@ -12,29 +11,29 @@ import {
 import Link from "next/link";
 
 type NavGroup = {
-  [x: string]: any;
   id?: string;
   navlabel?: boolean;
   subheader?: string;
   title?: string;
-  icon?: any;
-  href?: any;
-  onClick?: React.MouseEvent<HTMLButtonElement, MouseEvent>;
+  icon?: React.ElementType;
+  href?: string;
+  disabled?: boolean;
+  external?: boolean;
 };
 
 interface ItemType {
   item: NavGroup;
   onClick: (event: React.MouseEvent<HTMLElement>) => void;
-  hideMenu?: any;
-  level?: number | any;
+  level?: number;
   pathDirect: string;
 }
 
-const NavItem = ({ item, level, pathDirect, onClick }: ItemType) => {
-  const Icon = item.icon;
+const NavItem: React.FC<ItemType> = ({ item, level = 1, pathDirect, onClick }) => {
   const theme = useTheme();
-  const itemIcon = <Icon stroke={1.5} size="1.3rem" />;
+  const Icon = item.icon;
+  const isSelected = pathDirect === item.href;
 
+  // Styled ListItem
   const ListItemStyled = styled(ListItem)(() => ({
     padding: 0,
     ".MuiButtonBase-root": {
@@ -42,7 +41,7 @@ const NavItem = ({ item, level, pathDirect, onClick }: ItemType) => {
       marginBottom: "2px",
       padding: "8px 10px",
       borderRadius: "8px",
-      backgroundColor: level > 1 ? "transparent !important" : "inherit",
+      backgroundColor: level > 1 ? "transparent" : "inherit",
       color: theme.palette.text.secondary,
       paddingLeft: "10px",
       "&:hover": {
@@ -50,11 +49,10 @@ const NavItem = ({ item, level, pathDirect, onClick }: ItemType) => {
         color: theme.palette.primary.main,
       },
       "&.Mui-selected": {
-        color: "white",
+        color: theme.palette.common.white,
         backgroundColor: theme.palette.primary.main,
         "&:hover": {
           backgroundColor: theme.palette.primary.main,
-          color: "white",
         },
       },
     },
@@ -64,25 +62,25 @@ const NavItem = ({ item, level, pathDirect, onClick }: ItemType) => {
     <List component="div" disablePadding key={item.id}>
       <ListItemStyled>
         <ListItemButton
-          component={Link}
-          href={item.href}
+          component={item.href ? Link : "div"}
+          href={item.href || "#"}
           disabled={item.disabled}
-          selected={pathDirect === item.href}
-          target={item.external ? "_blank" : ""}
+          selected={isSelected}
+          target={item.external ? "_blank" : undefined}
           onClick={onClick}
         >
-          <ListItemIcon
-            sx={{
-              minWidth: "36px",
-              p: "3px 0",
-              color: "inherit",
-            }}
-          >
-            {itemIcon}
-          </ListItemIcon>
-          <ListItemText>
-            <>{item.title}</>
-          </ListItemText>
+          {Icon && (
+            <ListItemIcon
+              sx={{
+                minWidth: "36px",
+                p: "3px 0",
+                color: "inherit",
+              }}
+            >
+              <Icon stroke={1.5} size="1.3rem" />
+            </ListItemIcon>
+          )}
+          <ListItemText primary={item.title} />
         </ListItemButton>
       </ListItemStyled>
     </List>
